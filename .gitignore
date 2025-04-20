@@ -1,0 +1,10 @@
+.idea
+.idea/*
+
+moteus-venv
+moteus-venv/*
+
+.github
+.github/*
+
+.venv
