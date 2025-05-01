@@ -4,7 +4,14 @@ import moteus
 import moteus_pi3hat
 
 async def main():
-    transport = moteus_pi3hat.Pi3HatTransport()
+    transport = moteus_pi3hat.Pi3HatRouter(   
+    servo_bus_map = {
+            1:[11],
+            2:[12],
+            3:[13],
+            4:[14],
+        },
+    )
 
     while True:
         # Create a moteus client with the transport
@@ -20,4 +27,4 @@ async def main():
         await asyncio.sleep(1)
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
