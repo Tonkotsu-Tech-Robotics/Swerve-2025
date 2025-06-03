@@ -1,16 +1,12 @@
 import asyncio
 import moteus_pi3hat
-from Test_motor import TestMotor
+from TestMotor import TestMotor
 
 async def main():
-    transport = moteus_pi3hat.Pi3HatRouter(
-        servo_bus_map={
-            1: [11],  # Bus 1 → Motor ID 11
-        },
-    )
+    transport = moteus_pi3hat.Pi3HatRouter()
+    print("It got here")
 
-    motor = TestMotor(motorID=11, transport=transport, accel_limit=2.0)
-
+    motor = TestMotor(motorID=1, transport=transport, accel_limit=2.0)
 
     await motor.setSpeed(1.0)
 
