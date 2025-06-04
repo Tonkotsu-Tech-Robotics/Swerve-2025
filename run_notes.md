@@ -19,7 +19,7 @@ To properly calibrate motors for code running, run this command in the shell AFT
 IMPORTANT: While calibrating, make sure any motor that is being calibrated can freely spin!
 
 ```
-python3 -m moteus.moteus_tool -t [motor id here] --calibrate --cal-motor poles 14
+python3 -m moteus.moteus_tool -t [motor id here] --calibrate --cal-motor-poles 14
 ```
 
 - Addendum 1: The value for cal motor poles must be correct, however for our motors it should be 14, and if it is wrong then it will tell you the correct number to use in the argument.
@@ -58,3 +58,13 @@ Setting servo pos max/min to NaN will disable the check that requires the motor 
 
 Running the tview GUI will also allow you to graph and track motor telemetry data such as current position, velocity, among other points, making it easier to debug
 
+SUPER IMPORTANT!!!!!! In any motor.set_position() or motor.set_position_wait_command() function, ALWAYS have a velocity_limit and accel_limit parameter or else ur motor go bye bye :D An example of such is provided down below.
+
+```
+await controller.set_position( # Same thing with controller.set_position_wait_complete()
+    position=1.0,
+    velocity=2.0,
+    velocity_limit=5.0,
+    accel_limit=4.0
+)
+```

@@ -27,7 +27,7 @@ class TestMotor:
         Set velocity in revolutions per second.
         """
         await self.motor.set_position(
-            velocity=speed,
+            position=speed,
             accel_limit=self.accel_limit,
             query=True
         )

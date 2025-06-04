@@ -11,16 +11,21 @@ async def main():
     # This will periodically command and poll the controller until
     # the target position achieves the commanded value.
 
-    result = await c.set_position(
-        position=0, velocity=3, accel_limit=4.0)
+    result = await c.set_position_wait_complete(
+        position=100, 
+        accel_limit=4.0,
+        velocity_limit=4.0
+    )
     
     print(result)
 
-    await asyncio.sleep(5)
 
     # Then go back to zero, and eventually try again.
-    result = await c.set_position_wait_complete(
-       position=0, accel_limit=4.0)
+    result = await c.set_position(
+       position=0, 
+       accel_limit=4.0,
+       velocity_limit=4.0
+    )
 
     print(result)
 
