@@ -1,1 +1,0 @@
-python -m moteus_gui.tview --devices=1

@@ -1,10 +1,23 @@
+# JetBrains IDEs
 .idea
 .idea/*
 
+# Moteus configuration files
 moteus-venv
 moteus-venv/*
 
+# Local configuration files
 .github
 .github/*
 
+# Python virtual environments
 .venv
+.venv/*
+
+# VS Code settings
+.vscode
+.vscode/*
+
+# Python cache files
+__pycache__
+*.pyc
