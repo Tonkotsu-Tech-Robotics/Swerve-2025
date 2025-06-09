@@ -12,6 +12,38 @@ cd Swerve-2025
 source moteus-venv/bin/activate # If moteus-venv does not exist, follow moteus guide on creating venv and installing required libraries
 ```
 
+# Motor setup
+
+You will have to figure out what motors you have first (as well as their ids) before doing any calibration. You can run this command to do that.
+
+```
+python3 -m moteus.moteus_tool --info
+```
+
+NOTE: If you have more than one motor you want to tune, you will have to adjust their IDs individually.
+
+After figuring out what motors you have, run this command:
+
+```
+python3 -m moteus_gui.tview -t [motor id]
+```
+
+NOTE: If you want to have multiple motors, it can be dash-separated for a range or comma-separated for individual motors. Examples are given below.
+
+Comma-separated values for tview in ids 11 and 12
+```
+python3 -m moteus_gui.tview -t 11,12
+```
+
+Dash-separated for tview in ids 1 through 15
+```
+python3 -m moteus_gui.tview -t 1-15
+```
+
+Dash-separated values can be useful for calibration, motor id lookup and looking at the values for multiple motors.
+
+Comma-separated values can be useful for looking at the stats of a single motor at a time.
+
 # Calibration
 
 To properly calibrate motors for code running, run this command in the shell AFTER you have sourced into the virtual environment
@@ -21,16 +53,13 @@ IMPORTANT: While calibrating, make sure any motor that is being calibrated can f
 If you want to calibrate multiple motors (on different can busses), [motor id here] should be comma-separated
 
 ```
-python3 -m moteus.moteus_tool -t [motor id here] --calibrate --cal-motor-poles [num of poles]
+python3 -m moteus.moteus_tool -t [motor id here] --calibrate
 ```
 
 Ex for 2 motors:
 ```
-python3 -m moteus.moteus_tool -t 1,2 --calibrate --cal-motor-poles 14
+python3 -m moteus.moteus_tool -t 1,2 --calibrate
 ```
-
-- Addendum 1: The value for cal motor poles must be correct, however for our motors it should be 14, and if it is wrong then it will tell you the correct number to use in the argument.
-- Addendum 2: It may be optional, so someone needs to check whenever they have the time.
 
 # Starting the motors
 
@@ -41,7 +70,7 @@ https://github.com/mjbots/moteus/blob/main/lib/python/examples/wait_complete.py
 Before starting motors, make sure to disable servopos position min/max (You only have to do this the first time setting up from the Raspberry Pi). You can do this by first going into tview
 
 ```
-sudo moteus-venv/bin/tview
+python3 -m moteus_gui.tview -t [all your motor ids, comma separated]
 ```
 
 Then, in the command bar at the bottom of the GUI, running
