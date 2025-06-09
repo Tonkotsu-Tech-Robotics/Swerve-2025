@@ -1,6 +1,6 @@
 import asyncio
 import moteus_pi3hat
-from TestMotor import TestMotor
+from SwerveMotor import TestMotor
 
 async def main():
     transport = moteus_pi3hat.Pi3HatRouter()
