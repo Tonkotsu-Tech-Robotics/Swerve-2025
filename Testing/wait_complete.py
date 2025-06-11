@@ -1,72 +1,45 @@
 import asyncio
 import moteus_pi3hat
 import moteus
+import math
+
+# Run two motors at the same time
+
+async def stop_motor(motor):
+    await motor.set_stop()
+
+async def control_motor(motor, position, velocity, velocity_limit=5.0, accel_limit=5.0):
+    await motor.set_position(position=position, velocity=velocity, velocity_limit=velocity_limit, accel_limit=accel_limit, maximum_torque=0.5, watchdog_timeout=math.inf)
+
 
 async def main():
     # Construct a default controller at id 1.
     transport = moteus_pi3hat.Pi3HatRouter(
         servo_bus_map={
-            1: [11],
-            2: [12]
+            1: [11, 12],
         }
     )
 
-    servos = {
-        servo_id: moteus.Controller(id=servo_id, tranposrt=transport)
-        for servo_id in [11, 12]
-    }
+    # controllers = {x: moteus.Controller(x, query_resolution=qr) for x in SERVO_IDS}
 
-    # Clear any outstanding faults.
-    await transport.cycle([x.make_stop() for x in servos.values()])
+    motor1 = moteus.Controller(id=11)
+    motor2 = moteus.Controller(id=12)
+    
+    await motor1.set_stop()
+    await motor2.set_stop()
 
-    # This will periodically command and poll the controller until
-    # the target position achieves the commanded value.
+    await control_motor(motor1, position=math.nan, velocity=10, velocity_limit=5.0, accel_limit=5.0)
+    await control_motor(motor2, position=math.nan, velocity=10, velocity_limit=5.0, accel_limit=5.0)
 
-    initial_pos=120
-    final_pos=0 # should be equal to 0
+    # response1 = await motor1.set_position(position=math.nan, velocity=10, velocity_limit=15.0, accel_limit=5.0, maximum_torque=1, watchdog_timeout=math.inf)
+    # response2 = await motor2.set_position(position=math.nan, velocity=10, velocity_limit=15.0, accel_limit=5.0, maximum_torque=1, watchdog_timeout=math.inf)
 
-    commands = [
-        servos[11].set_position_wait_complete(
-            position=initial_pos, 
-            accel_limit=8.0,
-            velocity_limit=12.0
-        ),
-        servos[12].set_position_wait_complete(
-            position=initial_pos, 
-            accel_limit=8.0,
-            velocity_limit=12.0
-        ),
-    ]
+    await asyncio.sleep(10)
 
-    results = await transport.cycle(commands)
+    # print(response1)
+    # print(response2)
 
-    print(", ".join(
-        f"({result.arbitration_id})" +
-        f"{result.values[moteus.Register.POSITION]}" +
-        f"{result.values[moteus.Register.VELOCITY]}"
-        for result in results
-    ))
-
-    # Then go back to zero, and eventually try again.
-    commands = [
-        servos[11].set_position_wait_complete(
-            position=final_pos, 
-            accel_limit=8.0,
-            velocity_limit=12.0
-        ),
-        servos[12].set_position_wait_complete(
-            position=final_pos, 
-            accel_limit=8.0,
-            velocity_limit=12.0
-        ),
-    ]
-
-    print(", ".join(
-        f"({result.arbitration_id})" +
-        f"{result.values[moteus.Register.POSITION]}" +
-        f"{result.values[moteus.Register.VELOCITY]}"
-        for result in results
-    ))
-
+    await motor1.set_stop()
+    await motor2.set_stop()
 if __name__ == '__main__':
     asyncio.run(main())

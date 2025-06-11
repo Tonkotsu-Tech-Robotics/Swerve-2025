@@ -76,16 +76,16 @@ python3 -m moteus_gui.tview -t [all your motor ids, comma separated]
 Then, in the command bar at the bottom of the GUI, running
 
 ```
-conf set servopos.position_min nan
+[motor id]>conf set servopos.position_min nan
 ```
 ```
-conf set servopos.position_max nan
+[motor id]>conf set servopos.position_max nan
 ```
 
 then running this command to save the configurations
 
 ```
-conf write
+[motor id]>conf write
 ```
 
 Setting servo pos max/min to NaN will disable the check that requires the motor position to start within a specific range (from -1 to 1), and this can screw up the motors if you don't have a command that moves the motors into their original starting position.

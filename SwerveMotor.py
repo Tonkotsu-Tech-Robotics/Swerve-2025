@@ -1,5 +1,5 @@
 import moteus
-import moteus_pi3hat
+import math
 
 class TestMotor:
     def __init__(self, motorID, transport, accel_limit=10.0, velocity_limit=12.0):
@@ -12,6 +12,31 @@ class TestMotor:
         self.accel_limit = accel_limit
         self.velocity_limit = velocity_limit
         self.motor = moteus.Controller(id=motorID, transport=transport)
+
+    @property
+    async def getPos(self):
+        """
+        Returns the motor position (either in revolutions or None)
+        """
+
+        # Query the motor for its current state
+        result = await self.motor.set_position(query=True)
+
+        # Extract the position from the result
+        return result.values.get('position', None)
+
+    @property
+    async def velocity(self):
+        """
+        Returns the motor velocity (either in revolutions or None)
+        """
+
+        # Query the motor for its current state
+        result = await self.motor.set_position(query=True)
+
+        # Extract the position from the result
+        return result.values.get('velocity', None)
+
 
     async def setAngle(self, angle_deg):
         """
@@ -33,7 +58,8 @@ class TestMotor:
             await self.motor.set_position(
                 position=(self.getPos() + adjustedAngle),
                 accel_limit=self.accel_limit,
-                velocity_limit=self.velocity_limit
+                velocity_limit=self.velocity_limit,
+                watchdog_timeout=math.inf
             )
 
             return [True, self.getPos()]
@@ -50,29 +76,21 @@ class TestMotor:
         return await self.motor.set_position(
             position=(position_val + self.getPos()),
             accel_limit=self.accel_limit,
-            velocity_limit=self.velocity_limit
+            velocity_limit=self.velocity_limit,
+            watchdog_timeout=math.inf
         )
 
     async def setPos(self, position_val):
         """
-        Move to a position in revolutions 
+        Move to a position in revolutions
+        :param position_val: The position in revolutions
         """
         return await self.motor.set_position(
             position=position_val,
             accel_limit=self.accel_limit,
-            velocity_limit=self.velocity_limit
+            velocity_limit=self.velocity_limit,
+            watchdog_timeout=math.inf
         )
-
-    async def getPos(self):
-        """
-        Returns the motor position (either in revolutions or None)
-        """
-
-        # Query the motor for its current state
-        result = await self.motor.set_position(query=True)
-
-        # Extract the position from the result
-        return result.values.get('position', None)
 
     async def setPosWaitComplete(self, position_val):
         """
@@ -83,8 +101,36 @@ class TestMotor:
             position=position_val,
             velocity=0,
             accel_limit=self.accel_limit,
-            velocity_limit=self.velocity_limit
+            velocity_limit=self.velocity_limit,
+            watchdog_timeout=math.inf
         )
+
+    async def setVelocity(self, velocity_val):
+        """
+        Sets the velocity of the motor
+        :param velocity_val The velocity value in revolutions per second
+        """
+        return await self.motor.set_position(
+            position=math.nan,
+            velocity=velocity_val,
+            accel_limit=self.accel_limit,
+            velocity_limit=self.velocity_limit,
+            watchdog_timeout=math.inf
+        )
+    
+    async def setVelocityWaitComplete(self, velocity_val):
+        """
+        Moves to a velocity in revolutions
+        Waits until command is complete before moving onto the next command
+        """
+        return await self.motor.set_position_wait_complete(
+            position=math.nan,
+            velocity=velocity_val,
+            accel_limit=self.accel_limit,
+            velocity_limit=self.velocity_limit,
+            watchdog_timeout=math.inf
+        )
+
 
     async def stop(self):
         """
