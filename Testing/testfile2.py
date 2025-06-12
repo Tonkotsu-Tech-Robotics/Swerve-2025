@@ -43,7 +43,7 @@ async def main():
     # motor2 = moteus.Controller(id=12)
     
     await motor1.set_stop()
-    await motor2.set_stop()
+    # await motor2.set_stop()
 
     while True:
         raw_y_axis = -1 * joystick.get_axis(LEFT_STICK_Y_AXIS)
