@@ -52,7 +52,7 @@ class SwerveMotor:
         Move to a target angle in degrees.
         Returns boolean and retrived position after rotation
 
-        NOTE: If the wait_time parameter is not set, set_position will not be effective unless you manually implement asyncio.sleep().
+        NOTE: If the wait_time parameter is not set, set_position will not fully run unless you manually implement asyncio.sleep().
         
         :param angle_deg (float): An angle in degrees
         :param wait_time (float): The time to wait for the set_position function to complete.
@@ -89,6 +89,8 @@ class SwerveMotor:
         """
         Move to a position in revolutions relative to current position.
 
+        NOTE: If the wait_time parameter is not set, set_position will not fully run unless you manually implement asyncio.sleep().
+        
         :param position_val (float): The position to move to in revolutions.
         :param wait_time (float): The time to wait for the set_position function to complete.
         
@@ -109,21 +111,32 @@ class SwerveMotor:
             print(f"Error caught in addToCurrentPosition function: {e}")
             return [False, None, None]
 
-    async def setPos(self, position_val):
+    async def setPos(self, position_val, wait_time):
         """
         Move to an absolute position in revolutions.
+
+        NOTE: If the wait_time parameter is not set, set_position will not fully run unless you manually implement asyncio.sleep().
 
         :param position_val (float): The position to move to in revolutions.
         :param wait_time (float): The time to wait for the set_position function to complete.
         
         :return [boolean, float, any]: A completion boolean, position after the command has complete, set_position returned value
         """
-        return await self.motor.set_position(
-            position=position_val,
-            accel_limit=self.accel_limit,
-            velocity_limit=self.velocity_limit,
-            watchdog_timeout=math.inf
-        )
+        try:
+            command1 = await self.motor.set_position(
+                position=position_val,
+                accel_limit=self.accel_limit,
+                velocity_limit=self.velocity_limit,
+                watchdog_timeout=math.inf
+            )
+
+            asyncio.sleep(wait_time)
+
+            return [True, self.getPos(), command1]
+        except Exception as e:
+            print(f"Error caught in addToCurrentPosition function: {e}")
+            return [False, None, None]
+
 
     async def setPosWaitComplete(self, position_val):
         """
