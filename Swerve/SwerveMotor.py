@@ -273,3 +273,16 @@ class SwerveMotor:
         Stop the motor and clears all outstanding faults.
         """
         await self.motor.set_stop()
+
+    async def emergency_stop(self, error_message):
+        """
+        Stops the motor, clears all outstanding faults.
+        Exits out of the program with a critical error.
+
+        :params error_message (any): An error message to be displayed before quitting the program.
+        """
+        await self.motor.set_stop()
+
+        print(f"A critical error as occured and the program needs to quit. Error message: {error_message}")
+
+        exit(1)
