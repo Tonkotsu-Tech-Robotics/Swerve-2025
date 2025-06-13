@@ -12,8 +12,16 @@ class SwerveModule:
         self.drive = SwerveMotor(drive_id, transport)
         self.steer = SwerveMotor(steer_id, transport)
 
-    # Sets the speed and angle of the swerve module
-    async def set(self, speed, angle_deg):
+    # Sets the speed and angle of the swerve module (in motor revolutions)
+    async def set(self, speed: float, angle_deg: float):
+        """
+        Sets the speed and angle of the swerve module.
+
+        :param speed (float): The speed of the swerve module in revolutions per second.
+        :param angle_deg (float): The angle of the swerve module in degrees.
+        """
+        # Convert the angle from degrees to revolutions
+        # 1 revolution = 360 degrees, so we divide by 360
         angle_rev = angle_deg / 360.0
 
         # BE AWARE OF CONVERSIONS
@@ -23,4 +31,9 @@ class SwerveModule:
 
     # Stops the swerve module
     async def stop(self):
+        """
+        Stops the swerve module by stopping both the drive and steer motors.
+        """
+
         await self.drive.stop()
+        await self.steer.stop()
