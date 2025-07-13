@@ -1,34 +1,49 @@
 import asyncio
 import moteus
+import moteus_pi3hat
+import math
 
 async def main():
-    # transport = moteus_pi3hat.Pi3HatRouter(
-    #     servo_bus_map={
-    #         1: [1],  # Bus 1 → Motor ID 1
-    #     },
-    # )
-    # print("It got here")
-
-    motor = moteus.Controller()
-
-    # Stop motors if fault detected
-    await motor.set_stop()
-
-    # Spin motor at 1 m/s with a max acceleration of 2 rev/s²
-    state = await motor.set_position(
-        position=0.0,  # Position in revolutions
-        velocity=1.0,  # Velocity in revolutions per second
-        accel_limit=2.0,  # Acceleration limit in rev/s²
-        query=True  # Wait for the command to complete
+    transport = moteus_pi3hat.Pi3HatRouter(
+        servo_bus_map = {
+            1:[11,12]
+        }
     )
-    print("Motor is spinning at 1 m/s, current state is: ")
-    print(state)
+
+    servos = {
+        servo_id : moteus.Controller(id=servo_id, transport=transport)
+        for servo_id in [11,12]
+    }
+
+    await transport.cycle([x.make_stop() for x in servos.values()])
+
+
+
+    await transport.cycle([
+        servo.make_position(
+            position=math.nan,
+            velocity=5,
+            accel_limit=5,
+            velocity_limit=10,
+            watchdog_timeout=5,
+        )
+        for servo in servos.values()
+    ])
 
     await asyncio.sleep(5)
 
-    await motor.set_stop()  # Stop the motor
-    print("Motor stopped")
-    print("Position: " + str(state.values[moteus.Register.POSITION]))  # Get the current position
+    await transport.cycle([
+        servo.make_position(
+            position=math.nan,
+            velocity=0,
+            accel_limit=5,
+            velocity_limit=10,
+            watchdog_timeout=5,
+        )
+        for servo in servos.values()
+    ])
+
+    await transport.cycle([x.make_stop() for x in servos.values()])
 
 if __name__ == '__main__':
     asyncio.run(main())
