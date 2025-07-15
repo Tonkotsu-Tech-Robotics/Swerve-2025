@@ -28,7 +28,7 @@ async def main():
     while True:
         try:
             await transport.cycle([
-                servo.make_position(
+                servos[11].make_position(
                     position=math.nan,
                     # Use named constant for left joystick Y axis, scaled to -10..10
                     velocity=controller.get_axis(Controller.LEFT_Y) * 15,
@@ -36,7 +36,17 @@ async def main():
                     velocity_limit=15,
                     watchdog_timeout=5,
                 )
-                for servo in servos.values()
+            ])
+
+            await transport.cycle([
+                servos[12].make_position(
+                    position=math.nan,
+                    # Use named constant for left joystick Y axis, scaled to -10..10
+                    velocity=controller.get_axis(Controller.LEFT_X) * 15,
+                    accel_limit=30,
+                    velocity_limit=15,
+                    watchdog_timeout=5,
+                )
             ])
             # Example: check if A button is pressed
             if controller.get_button(Controller.BUTTON_A):
