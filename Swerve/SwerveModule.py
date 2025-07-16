@@ -3,14 +3,32 @@ import moteus_pi3hat
 from wpimath.controller import PIDController
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModuleState
+from wpimath.kinematics import SwerveModulePosition
 from wpimath.geometry import Rotation2d
 import math
 from SwerveMotor import SwerveMotor
+from constants import DRIVE_MOTOR_GEAR_RATIO, WHEEL_DIAMETER
+
 
 class SwerveModule:
-    def __init__(self, drive_id, steer_id, transport):
+    def __init__(self, drive_id: int, steer_id: int, transport):
         self.drive = SwerveMotor(drive_id, transport)
         self.steer = SwerveMotor(steer_id, transport)
+
+        # Initial position and state
+        self.swerve_module_position = SwerveModulePosition(0.0, Rotation2d())
+        self.state = SwerveModuleState(0.0, Rotation2d())
+
+    async def getPosition(self) -> SwerveModulePosition:
+        drive_position = await self.drive.pos()  # revolutions
+        steer_position = await self.steer.pos()  # revolutions
+
+        angle = Rotation2d.fromRotations(steer_position)
+        distance = (drive_position / DRIVE_MOTOR_GEAR_RATIO) * WHEEL_DIAMETER * math.pi
+
+        self.swerve_module_position = SwerveModulePosition(distance, angle)
+        return self.swerve_module_position
+
 
     # Sets the speed and angle of the swerve module (in motor revolutions)
     async def set(self, speed: float, angle_deg: float):
