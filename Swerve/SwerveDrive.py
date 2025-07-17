@@ -21,20 +21,6 @@ class SwerveDrive:
             SwerveModule(drive_id=17, steer_id=18, transport=transport),
         ]
 
-    async def testFunction(self):
-        print("This is a test function in SwerveDrive.")
-
-        [
-            await module.set(0.5, 90) for module in self.modules
-        ]
-
-        await asyncio.sleep(5) # Wait 5 seconds
-
-        [
-            await module.stop() for module in self.modules
-        ]
-
-        await asyncio.sleep(5) # Wait 5 seconds
 
     async def stop(self):
         """

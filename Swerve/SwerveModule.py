@@ -31,21 +31,27 @@ class SwerveModule:
 
 
     # Sets the speed and angle of the swerve module (in motor revolutions)
-    async def set(self, speed: float, angle_deg: float):
+    async def set(self, speed: float, angle_deg: float, transport: moteus.Transport) -> list:
         """
         Sets the speed and angle of the swerve module.
 
         :param speed (float): The speed of the swerve module in revolutions per second.
         :param angle_deg (float): The angle of the swerve module in degrees.
+        
+        :return list: A list containing the results of setting the speed and angle.
         """
         # Convert the angle from degrees to revolutions
         # 1 revolution = 360 degrees, so we divide by 360
         angle_rev = angle_deg / 360.0
 
         # BE AWARE OF CONVERSIONS
+        steer_angle = await self.steer.setAngle(angle_rev, transport)
+        drive_velocity = await self.drive.setVelocity(speed, transport)
 
-        await self.steer.setAngle(angle_rev)
-        await self.drive.setVelocity(speed)
+        # Map the steer angle list and drive velocity list to a dictionary
+        return {
+            "steer_angle": steer_angle
+        }
 
     # Stops the swerve module
     async def stop(self):

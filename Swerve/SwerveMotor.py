@@ -76,7 +76,7 @@ class SwerveMotor:
 
         return result.values
 
-    async def setAngle(self, angle_deg: float, wait_time: float=0) -> list:
+    async def setAngle(self, angle_deg: float, transport: moteus.Transport) -> dict:
         """
         A position mode function.
         
@@ -85,11 +85,11 @@ class SwerveMotor:
 
         NOTE: If the wait_time parameter is not set, set_position will not fully run unless you manually implement asyncio.sleep().
         It is better if you implement this yourself IF you have more than 1 motor.
-        
-        :param angle_deg (float): An angle in degrees
-        :param wait_time (float): The time to wait for the set_position function to complete.
-        
-        :return [boolean, float, any]: A completion boolean, position after the command has complete, set_position returned value
+
+        :param angle_deg (float): An angle in degrees to move to. Will be converted to revolutions. Motor will move to this angle relative to its current position, and with a max speed of what is set in self.velocity_limit in rev/s. It will reach this max speed in self.accel_limit in rev/s².
+        :param transport (moteus.Transport): The transport object to use for communication. Should be the same transport used in every motor.
+
+        :return moteus.Command | bool: A moteus command object if successful, or False if an error occurs.
         """
 
         try:
@@ -103,49 +103,58 @@ class SwerveMotor:
 
             adjustedAngle = angle_rev  # temp angle for now, add calculations in later
 
-            command1 = await self.motor.set_position(
+            command = transport.cycle([self.motor.make_position(
                 position=(self.pos + adjustedAngle),
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
-                watchdog_timeout=self.watchdog_timeout)
+                watchdog_timeout=self.watchdog_timeout
+            )])
 
-            await asyncio.sleep(wait_time)
-
-            return [True, self.pos, command1]
+            if command is None:
+                print(f"Error setting angle {angle_deg} for motor with ID {self.motor.motor_id}.")
+                return []
+            
+            return {
+                "position": command.values[moteus.Register.POSITION],
+                "velocity": command.values[moteus.Register.VELOCITY]
+            }
         except Exception as e:
             print(f"Error caught in setAngle function: {e}")
-            return [False, None, None]
+            return []
 
-    async def addToCurrentPos(self, position_val: float, wait_time: float=0) -> list:
+    async def addToCurrentPos(self, position_val: float, transport: moteus.Transport) -> dict:
         """
         Move to a position in revolutions relative to current position.
 
         NOTE: If the wait_time parameter is not set, set_position will not fully run unless you manually implement asyncio.sleep().
         It is better if you implement this yourself IF you have more than 1 motor.
 
-        :param position_val (float): The position target to move to in revolutions.
-        :param wait_time (float): The time to wait for the set_position function to complete.
-        
-        :return [boolean, float, any]: A list of 3 items, described down below.
-        :return boolean: A boolean for execution, True if function has properly executed.
-        :return float: The current position value after running the command.
-        :return any: An object returned by the set_position function.
+        :param position_val (float): The position target to move to in revolutions. This will be added to the current position of the motor, not set as an absolute position.
+        :param transport (moteus.Transport): The transport object to use for communication. Should be the same transport used in every motor.
+
+        :return moteus.Command | bool: A moteus command object if successful, or False if an error occurs.
         """
         try:
-            command1 = await self.motor.set_position(
+            commands = transport.cycle([self.motor.make_position(
                 position=(position_val + self.pos),
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
                 watchdog_timeout=self.watchdog_timeout)
+            ])
 
-            await asyncio.sleep(wait_time)
+            if commands is None:
+                print(f"Error setting position {position_val} for motor with ID {self.motor.motor_id}.")
+                return []
 
-            return [True, self.pos, command1]
+            return {
+                "position": commands.values[moteus.Register.POSITION],
+                "velocity": commands.values[moteus.Register.VELOCITY]
+            }
         except Exception as e:
             print(f"Error caught in addToCurrentPosition function: {e}")
-            return [False, None, None]
+            return []
 
-    async def setPos(self, position_val: float, wait_time: float) -> list:
+    async def setPos(self, position_val: float, transport: moteus.Transport ) -> dict:
         """
         A position mode function.
 
@@ -155,57 +164,31 @@ class SwerveMotor:
         It is better if you implement this yourself IF you have more than 1 motor that you want to run.
 
         :param position_val (float): The position target to move to in revolutions.
-        :param wait_time (float): The time to wait for the set_position function to complete.
-        
-        :return [boolean, float, any]: A list of 3 items, described down below.
-        :return boolean: A boolean for execution, True if function has properly executed.
-        :return float: The current position value after running the command.
-        :return any: An object returned by the set_position function.
+        :param transport (moteus.Transport): The transport object to use for communication.
+
+        :return moteus.Command | bool: A moteus command object if successful, or False if an error occurs.
         """
         try:
-            command1 = await self.motor.set_position(
+            commands = transport.cycle([self.motor.make_position(
                 position=position_val,
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
                 watchdog_timeout=self.watchdog_timeout)
+            ])
 
-            await asyncio.sleep(wait_time)
+            if commands is None:
+                print(f"Error setting position {position_val} for motor with ID {self.motor.motor_id}.")
+                return []
 
-            return [True, self.pos, command1]
+            return {
+                "position": commands.values[moteus.Register.POSITION],
+                "velocity": commands.values[moteus.Register.VELOCITY]
+            }
         except Exception as e:
-            print(f"Error caught in addToCurrentPosition function: {e}")
-            return [False, None, None]
+            print(f"Error caught in setPos function: {e}")
+            return []
 
-    async def setPosWaitComplete(self, position_val: float) -> list:
-        """
-        A position mode function.
-
-        Moves to an absolute position in revolutions.
-        Waits until command is complete before moving onto the next command.
-        
-        NOTE: This function cannot be overridden when called on, use it cautiously.
-        Once called, no other motors can also run at the same time.
-
-        :param position_val (float): The position target to move to to in revolutions.
-
-        :return [boolean, float, any]: A list of 3 items, described down below.
-        :return boolean: A boolean for execution, True if function has properly executed.
-        :return float: The current position value after running the command.
-        :return any: An object returned by the set_position function.
-        """
-        try:
-            command1 = await self.motor.set_position_wait_complete(
-                position=position_val,
-                accel_limit=self.accel_limit,
-                velocity_limit=self.velocity_limit,
-                watchdog_timeout=self.watchdog_timeout)
-
-            return [True, self.pos, command1]
-        except Exception as e:
-            print(f"Error caught in addToCurrentPosition function: {e}")
-            return [False, None, None]
-
-    async def setVelocity(self, velocity_val: float, wait_time: float=0) -> list:
+    async def setVelocity(self, velocity_val: float, transport: moteus.Transport) -> dict:
         """
         A velocity control mode function.
 
@@ -216,58 +199,29 @@ class SwerveMotor:
 
         
         :param velocity_val The velocity target in revolutions per second.
-        :param wait_time (float): The time to wait for the set_position function to complete.
-        
-        :return [boolean, float, any]: A list of 3 items, described down below.
-        :return boolean: A boolean for execution, True if function has properly executed.
-        :return float: The current position value after running the command.
-        :return any: An object returned by the set_position function.
+
+        :return moteus.Command | bool: A moteus command object if successful, or False if an error occurs.
         """
         try:
-            command1 = await self.motor.set_position(
+            commands = transport.cycle([self.motor.make_position(
                 position=math.nan,
                 velocity=velocity_val,
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
                 watchdog_timeout=self.watchdog_timeout)
+            ])
 
-            await asyncio.sleep(wait_time)
+            if commands is None:
+                print(f"Error setting velocity {velocity_val} for motor with ID {self.motor.motor_id}.")
+                return []
 
-            return [True, self.pos, command1]
+            return {
+                "position": commands.values[moteus.Register.POSITION],
+                "velocity": commands.values[moteus.Register.VELOCITY]
+            }
         except Exception as e:
-            print(f"Error caught in addToCurrentPosition function: {e}")
-            return [False, None, None]
-
-    async def setVelocityWaitComplete(self, velocity_val: float) -> list:
-        """
-        A velocity control mode function.
-
-        Moves to a velocity in revolutions.
-        Waits until command is complete before moving onto the next command.
-    
-        NOTE: This function cannot be overridden when called on, use it cautiously.
-        Once called, no other motors can also run at the same time.
-
-        :param position_val (float): The position target to move to to in revolutions.
-
-        :return [boolean, float, any]: A list of 3 items, described down below.
-        :return boolean: A boolean for execution, True if function has properly executed.
-        :return float: The current position value after running the command.
-        :return any: An object returned by the set_position function.
-        """
-        try:
-            command1 = await self.motor.set_position_wait_complete(
-                position=math.nan,
-                velocity=velocity_val,
-                accel_limit=self.accel_limit,
-                velocity_limit=self.velocity_limit,
-                watchdog_timeout=self.watchdog_timeout)
-
-            return [True, self.pos, command1]
-        except Exception as e:
-            print(f"Error caught in addToCurrentPosition function: {e}")
-            return [False, None, None]
-        
+            print(f"Error caught in setVelocity function: {e}")
+            return []
 
     async def stop(self) -> None:
         """
