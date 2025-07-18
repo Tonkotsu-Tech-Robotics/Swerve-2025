@@ -1,12 +1,12 @@
 import moteus
 import moteus_pi3hat
 import asyncio
-from SwerveModule import SwerveModule
+from Swerve.SwerveModule import SwerveModule
 from Controller import Controller
 
 class SwerveDrive:
     def __init__(self):
-        transport: moteus.Transport = moteus_pi3hat.Pi3HatRouter(
+        self.transport: moteus.Transport = moteus_pi3hat.Pi3HatRouter(
             servo_bus_map={
                 1: [11, 12], # Bus 1, Motor ids 11 and 12
                 2: [13, 14], # Bus 2, Motor ids 13 and 14
@@ -16,10 +16,10 @@ class SwerveDrive:
         )
 
         self.modules = [
-            SwerveModule(drive_id=11, steer_id=12, transport=transport),
-            SwerveModule(drive_id=13, steer_id=14, transport=transport),
-            SwerveModule(drive_id=15, steer_id=16, transport=transport),
-            SwerveModule(drive_id=17, steer_id=18, transport=transport),
+            SwerveModule(drive_id=11, steer_id=12, transport=self.transport),
+            SwerveModule(drive_id=13, steer_id=14, transport=self.transport),
+            SwerveModule(drive_id=15, steer_id=16, transport=self.transport),
+            SwerveModule(drive_id=17, steer_id=18, transport=self.transport),
         ]
 
         self.controller = Controller()

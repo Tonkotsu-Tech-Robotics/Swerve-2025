@@ -6,8 +6,8 @@ from wpimath.kinematics import SwerveModuleState
 from wpimath.kinematics import SwerveModulePosition
 from wpimath.geometry import Rotation2d
 import math
-from SwerveMotor import SwerveMotor
-from constants import DRIVE_MOTOR_GEAR_RATIO, WHEEL_DIAMETER
+from Swerve.SwerveMotor import SwerveMotor
+from Utils.Constants import DRIVE_MOTOR_GEAR_RATIO, WHEEL_DIAMETER
 
 
 class SwerveModule:
@@ -40,18 +40,14 @@ class SwerveModule:
         
         :return list: A list containing the results of setting the speed and angle.
         """
-        # Convert the angle from degrees to revolutions
-        # 1 revolution = 360 degrees, so we divide by 360
-        angle_rev = angle_deg / 360.0
-
-        # BE AWARE OF CONVERSIONS
-        steer_angle = await self.steer.setAngle(angle_rev, transport)
-        drive_velocity = await self.drive.setVelocity(speed, transport)
+        # Set angle natively takes degrees 
+        await self.steer.setAngle(angle_deg, transport)
+        await self.drive.setVelocity(speed, transport)
 
         # Map the steer angle list and drive velocity list to a dictionary
         return {
-            "steer_angle": steer_angle.position,
-            "drive_velocity": drive_velocity.velocity
+            "steer_angle": self.steer.position,
+            "drive_velocity": self.drive.velocity
         }
 
     # Stops the swerve module

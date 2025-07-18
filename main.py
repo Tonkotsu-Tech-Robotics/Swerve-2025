@@ -1,5 +1,5 @@
 import asyncio
-from swerve.SwerveDrive import SwerveDrive
+from Swerve.SwerveDrive import SwerveDrive
 
 async def main(swerve_drive: SwerveDrive = None):
     while True:

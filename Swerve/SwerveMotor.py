@@ -76,7 +76,7 @@ class SwerveMotor:
 
         return result.values
 
-    async def setAngle(self, angle_deg: float, transport: moteus.Transport) -> dict:
+    async def setAngle(self, angle_deg: float, transport: moteus.Transport) -> bool:
         """
         A position mode function.
         
@@ -89,13 +89,13 @@ class SwerveMotor:
         :param angle_deg (float): An angle in degrees to move to. Will be converted to revolutions. Motor will move to this angle relative to its current position, and with a max speed of what is set in self.velocity_limit in rev/s. It will reach this max speed in self.accel_limit in rev/s².
         :param transport (moteus.Transport): The transport object to use for communication. Should be the same transport used in every motor.
 
-        :return dict: A dictionary containing the position and velocity after the command is executed.
+        :return bool: True if the angle was set successfully, False otherwise.
         """
 
         try:
             angle_rev = angle_deg / 360.0
 
-            degAngle = await self.pos * 360
+            degAngle = await self.position * 360
 
             if degAngle == None:
                 raise TypeError(
@@ -103,27 +103,20 @@ class SwerveMotor:
 
             adjustedAngle = angle_rev  # temp angle for now, add calculations in later
 
-            command = transport.cycle([self.motor.make_position(
-                position=(self.pos + adjustedAngle),
+            transport.cycle([self.motor.make_position(
+                position=(self.position + adjustedAngle),
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
                 watchdog_timeout=self.watchdog_timeout
             )])
 
-            if command is None:
-                print(f"Error setting angle {angle_deg} for motor with ID {self.motor.motor_id}.")
-                return []
-            
-            return {
-                "position": command.values[moteus.Register.POSITION],
-                "velocity": command.values[moteus.Register.VELOCITY]
-            }
+            return True
         except Exception as e:
             print(f"Error caught in setAngle function: {e}")
-            self.emergency_stop(f"Error caught in setAngle function: {e}")
-            return []
+            await self.emergency_stop(f"Error caught in setAngle function: {e}")
+            return False
 
-    async def addToCurrentPos(self, position_val: float, transport: moteus.Transport) -> dict:
+    async def addToCurrentPos(self, position_val: float, transport: moteus.Transport) -> bool:
         """
         Move to a position in revolutions relative to current position.
 
@@ -133,30 +126,23 @@ class SwerveMotor:
         :param position_val (float): The position target to move to in revolutions. This will be added to the current position of the motor, not set as an absolute position.
         :param transport (moteus.Transport): The transport object to use for communication. Should be the same transport used in every motor.
 
-        :return dict: A dictionary containing the position and velocity after the command is executed.
+        :return bool: True if the position was set successfully, False otherwise.
         """
         try:
-            commands = transport.cycle([self.motor.make_position(
-                position=(position_val + self.pos),
+            transport.cycle([self.motor.make_position(
+                position=(position_val + self.position),
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
                 watchdog_timeout=self.watchdog_timeout)
             ])
 
-            if commands is None:
-                print(f"Error setting position {position_val} for motor with ID {self.motor.motor_id}.")
-                return []
-
-            return {
-                "position": commands.values[moteus.Register.POSITION],
-                "velocity": commands.values[moteus.Register.VELOCITY]
-            }
+            return True
         except Exception as e:
             print(f"Error caught in addToCurrentPosition function: {e}")
-            self.emergency_stop(f"Error caught in addToCurrentPosition function: {e}")
-            return []
+            await self.emergency_stop(f"Error caught in addToCurrentPosition function: {e}")
+            return False
 
-    async def setPosition(self, position_val: float, transport: moteus.Transport ) -> dict:
+    async def setPosition(self, position_val: float, transport: moteus.Transport ) -> bool:
         """
         A position mode function.
 
@@ -168,30 +154,23 @@ class SwerveMotor:
         :param position_val (float): The position target to move to in revolutions.
         :param transport (moteus.Transport): The transport object to use for communication.
 
-        :return dict: A dictionary containing the position and velocity after the command is executed.
+        :return bool: True if the position was set successfully, False otherwise.
         """
         try:
-            commands = transport.cycle([self.motor.make_position(
+            transport.cycle([self.motor.make_position(
                 position=position_val,
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
                 watchdog_timeout=self.watchdog_timeout)
             ])
 
-            if commands is None:
-                print(f"Error setting position {position_val} for motor with ID {self.motor.motor_id}.")
-                return []
-
-            return {
-                "position": commands.values[moteus.Register.POSITION],
-                "velocity": commands.values[moteus.Register.VELOCITY]
-            }
+            return True
         except Exception as e:
             print(f"Error caught in setPos function: {e}")
-            self.emergency_stop(f"Error caught in setPos function: {e}")
-            return []
+            await self.emergency_stop(f"Error caught in setPos function: {e}")
+            return False
 
-    async def setVelocity(self, velocity_val: float, transport: moteus.Transport) -> dict:
+    async def setVelocity(self, velocity_val: float, transport: moteus.Transport) -> bool:
         """
         A velocity control mode function.
 
@@ -203,10 +182,10 @@ class SwerveMotor:
         
         :param velocity_val The velocity target in revolutions per second.
 
-        :return dict: A dictionary containing the position and velocity after the command is executed.
+        :return bool: True if the velocity was set successfully, False otherwise.
         """
         try:
-            commands = transport.cycle([self.motor.make_position(
+            transport.cycle([self.motor.make_position(
                 position=math.nan,
                 velocity=velocity_val,
                 accel_limit=self.accel_limit,
@@ -214,18 +193,11 @@ class SwerveMotor:
                 watchdog_timeout=self.watchdog_timeout)
             ])
 
-            if commands is None:
-                print(f"Error setting velocity {velocity_val} for motor with ID {self.motor.motor_id}.")
-                return []
-
-            return {
-                "position": commands.values[moteus.Register.POSITION],
-                "velocity": commands.values[moteus.Register.VELOCITY]
-            }
+            return True
         except Exception as e:
             print(f"Error caught in setVelocity function: {e}")
-            self.emergency_stop(f"Error caught in setVelocity function: {e}")
-            return []
+            await self.emergency_stop(f"Error caught in setVelocity function: {e}")
+            return False
 
     async def stop(self) -> None:
         """
