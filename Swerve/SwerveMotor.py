@@ -35,7 +35,7 @@ class SwerveMotor:
         asyncio.run(self.motor.set_stop())
 
     @property
-    async def pos(self) -> float:
+    async def position(self) -> float:
         """
         Gives the current absolute motor position (relative to position 0).
 
@@ -89,7 +89,7 @@ class SwerveMotor:
         :param angle_deg (float): An angle in degrees to move to. Will be converted to revolutions. Motor will move to this angle relative to its current position, and with a max speed of what is set in self.velocity_limit in rev/s. It will reach this max speed in self.accel_limit in rev/s².
         :param transport (moteus.Transport): The transport object to use for communication. Should be the same transport used in every motor.
 
-        :return moteus.Command | bool: A moteus command object if successful, or False if an error occurs.
+        :return dict: A dictionary containing the position and velocity after the command is executed.
         """
 
         try:
@@ -120,6 +120,7 @@ class SwerveMotor:
             }
         except Exception as e:
             print(f"Error caught in setAngle function: {e}")
+            self.emergency_stop(f"Error caught in setAngle function: {e}")
             return []
 
     async def addToCurrentPos(self, position_val: float, transport: moteus.Transport) -> dict:
@@ -132,7 +133,7 @@ class SwerveMotor:
         :param position_val (float): The position target to move to in revolutions. This will be added to the current position of the motor, not set as an absolute position.
         :param transport (moteus.Transport): The transport object to use for communication. Should be the same transport used in every motor.
 
-        :return moteus.Command | bool: A moteus command object if successful, or False if an error occurs.
+        :return dict: A dictionary containing the position and velocity after the command is executed.
         """
         try:
             commands = transport.cycle([self.motor.make_position(
@@ -152,9 +153,10 @@ class SwerveMotor:
             }
         except Exception as e:
             print(f"Error caught in addToCurrentPosition function: {e}")
+            self.emergency_stop(f"Error caught in addToCurrentPosition function: {e}")
             return []
 
-    async def setPos(self, position_val: float, transport: moteus.Transport ) -> dict:
+    async def setPosition(self, position_val: float, transport: moteus.Transport ) -> dict:
         """
         A position mode function.
 
@@ -166,7 +168,7 @@ class SwerveMotor:
         :param position_val (float): The position target to move to in revolutions.
         :param transport (moteus.Transport): The transport object to use for communication.
 
-        :return moteus.Command | bool: A moteus command object if successful, or False if an error occurs.
+        :return dict: A dictionary containing the position and velocity after the command is executed.
         """
         try:
             commands = transport.cycle([self.motor.make_position(
@@ -186,6 +188,7 @@ class SwerveMotor:
             }
         except Exception as e:
             print(f"Error caught in setPos function: {e}")
+            self.emergency_stop(f"Error caught in setPos function: {e}")
             return []
 
     async def setVelocity(self, velocity_val: float, transport: moteus.Transport) -> dict:
@@ -200,7 +203,7 @@ class SwerveMotor:
         
         :param velocity_val The velocity target in revolutions per second.
 
-        :return moteus.Command | bool: A moteus command object if successful, or False if an error occurs.
+        :return dict: A dictionary containing the position and velocity after the command is executed.
         """
         try:
             commands = transport.cycle([self.motor.make_position(
@@ -221,6 +224,7 @@ class SwerveMotor:
             }
         except Exception as e:
             print(f"Error caught in setVelocity function: {e}")
+            self.emergency_stop(f"Error caught in setVelocity function: {e}")
             return []
 
     async def stop(self) -> None:
@@ -238,6 +242,9 @@ class SwerveMotor:
         """
         await self.motor.set_stop()
 
-        print(f"A critical error as occured and the program needs to quit. Error message: {error_message}")
+        if error_message is not None:
+            print(f"A critical error has occurred and the program needs to quit. Error message: {error_message}")
+        else:
+            print("An unknown error has occurred and the program needs to quit.")
 
         exit(1)

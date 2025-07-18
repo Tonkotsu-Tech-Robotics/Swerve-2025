@@ -3,7 +3,7 @@ from swerve.SwerveDrive import SwerveDrive
 
 async def main(swerve_drive: SwerveDrive = None):
     while True:
-        await swerve_drive.testFunction()  # Call the test function in SwerveDrive
+        await swerve_drive.setMotorSpeeds()
         
         await asyncio.sleep(0.005)  # Sleep for 5 milliseconds
 

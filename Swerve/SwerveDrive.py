@@ -2,10 +2,11 @@ import moteus
 import moteus_pi3hat
 import asyncio
 from SwerveModule import SwerveModule
+from Controller import Controller
 
 class SwerveDrive:
     def __init__(self):
-        transport = moteus_pi3hat.Pi3HatRouter(
+        transport: moteus.Transport = moteus_pi3hat.Pi3HatRouter(
             servo_bus_map={
                 1: [11, 12], # Bus 1, Motor ids 11 and 12
                 2: [13, 14], # Bus 2, Motor ids 13 and 14
@@ -21,21 +22,48 @@ class SwerveDrive:
             SwerveModule(drive_id=17, steer_id=18, transport=transport),
         ]
 
+        self.controller = Controller()
 
     async def stop(self):
         """
         Stops all swerve modules.
         """
-        await asyncio.gather(*(module.stop() for module in self.modules))
+        [
+            await module.stop() for module in self.modules
+        ]
 
-    async def set(self, speeds, angles):
+    async def setAll(self, speeds, angles):
         """
         Sets the speed and angle of each swerve module.
         """
-        await asyncio.gather(*(module.set(speed, angle) for module, speed, angle in zip(self.modules, speeds, angles)))
-    
+        [
+            await module.set(speed, angle, self.transport)
+            for module, speed, angle in zip(self.modules, speeds, angles)
+        ]
+
     async def setModule(self, index, speed, angle):
         """
         Sets the speed and angle of a specific swerve module.
         """
-        await self.modules[index].set(speed, angle)
+        await self.modules[index].set(speed, angle, self.transport)
+
+    async def getModulePosition(self, index):
+        """
+        Gets the position of a specific swerve module.
+        """
+        return await self.modules[index].getPosition()
+    
+    async def setMotorSpeeds(self):
+        """
+        Uses the controller to set the speeds of the swerve modules based on joystick input.
+        """
+        left_x = self.controller.get_axis(Controller.LEFT_X)
+        left_y = self.controller.get_axis(Controller.LEFT_Y)
+        right_x = self.controller.get_axis(Controller.RIGHT_X)
+        right_y = self.controller.get_axis(Controller.RIGHT_Y)
+
+        # Calculate speeds and angles for each module
+        speeds = [left_y, left_y, right_y, right_y]
+        angles = [left_x, left_x, right_x, right_x]
+
+        await self.setAll(speeds, angles)

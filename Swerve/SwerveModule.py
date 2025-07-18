@@ -20,8 +20,8 @@ class SwerveModule:
         self.state = SwerveModuleState(0.0, Rotation2d())
 
     async def getPosition(self) -> SwerveModulePosition:
-        drive_position = await self.drive.pos()  # revolutions
-        steer_position = await self.steer.pos()  # revolutions
+        drive_position = await self.drive.position()  # revolutions
+        steer_position = await self.steer.position()  # revolutions
 
         angle = Rotation2d.fromRotations(steer_position)
         distance = (drive_position / DRIVE_MOTOR_GEAR_RATIO) * WHEEL_DIAMETER * math.pi
@@ -50,7 +50,8 @@ class SwerveModule:
 
         # Map the steer angle list and drive velocity list to a dictionary
         return {
-            "steer_angle": steer_angle
+            "steer_angle": steer_angle.position,
+            "drive_velocity": drive_velocity.velocity
         }
 
     # Stops the swerve module
