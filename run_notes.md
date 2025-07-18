@@ -4,6 +4,22 @@ Follow the moteus install docs available at
 
 https://github.com/mjbots/pi3hat/blob/master/docs/reference.md#usage-with-client-side-tools
 
+(I'll put the commands down here to run if you are too lazy like I was)
+
+```
+sudo apt install python3-pyside2* python3-serial python3-can python3-matplotlib python3-qtconsole libraspberrypi-dev
+
+python -m venv --system-site-packages moteus-venv
+
+sudo bash
+
+source moteus-venv/bin/activate
+
+pip install asyncqt importlib_metadata pyelftools
+
+pip install moteus moteus_gui moteus-pi3hat
+```
+
 In the rasp pi, run these commands to get started with running any of the python files
 
 ```
