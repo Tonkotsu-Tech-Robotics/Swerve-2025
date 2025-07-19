@@ -9,7 +9,6 @@ import math
 from Swerve.SwerveMotor import SwerveMotor
 from Utils.Constants import DRIVE_MOTOR_GEAR_RATIO, WHEEL_DIAMETER
 
-
 class SwerveModule:
     def __init__(self, drive_id: int, steer_id: int, transport):
         self.drive = SwerveMotor(drive_id, transport)
@@ -46,8 +45,7 @@ class SwerveModule:
 
         # Map the steer angle list and drive velocity list to a dictionary
         return {
-            "steer_angle": self.steer.position,
-            "drive_velocity": self.drive.velocity
+            "womp_womp": 1
         }
 
     # Stops the swerve module
