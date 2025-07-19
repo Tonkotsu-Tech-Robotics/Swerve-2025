@@ -2,5 +2,5 @@ asyncio
 moteus
 moteus-pi3hat
 wpilib
-wpimath
+robotpy-wpimath
 pygame

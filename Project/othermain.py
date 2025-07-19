@@ -2,7 +2,7 @@ import asyncio
 import moteus
 import moteus_pi3hat
 import math
-from Controller import Controller
+from Utils.Controller import Controller
 
 async def main():
     transport = moteus_pi3hat.Pi3HatRouter(
