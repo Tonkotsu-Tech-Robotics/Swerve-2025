@@ -25,41 +25,40 @@ class SwerveDrive:
         self.controller = Controller()
     
     
-
-    """
     async def stop(self):
-        
+        """
         Stops all swerve modules.
-        
+        """
         [
             await module.stop() for module in self.modules
         ]
 
     async def setAll(self, speeds, angles):
-        
+        """
         Sets the speed and angle of each swerve module.
-        
+        """
         [
             await module.set(speed, angle, self.transport)
             for module, speed, angle in zip(self.modules, speeds, angles)
         ]
 
     async def setModule(self, index, speed, angle):
-        
+        """
         Sets the speed and angle of a specific swerve module.
-        
+        """
         await self.modules[index].set(speed, angle, self.transport)
 
     async def getModulePosition(self, index):
-        
+        """
         Gets the position of a specific swerve module.
-        
+        """
         return await self.modules[index].getPosition()
     
     async def setMotorSpeeds(self):
-        
+        """
         Uses the controller to set the speeds of the swerve modules based on joystick input.
-        
+        """
+
         left_x = self.controller.get_axis(Controller.LEFT_X)
         left_y = self.controller.get_axis(Controller.LEFT_Y)
         right_x = self.controller.get_axis(Controller.RIGHT_X)
@@ -70,5 +69,3 @@ class SwerveDrive:
         angles = [left_x, left_x, right_x, right_x]
 
         await self.setAll(speeds, angles)
-
-        """

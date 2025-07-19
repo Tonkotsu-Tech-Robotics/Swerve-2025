@@ -14,7 +14,7 @@ class SwerveMotor:
                  transport: moteus_pi3hat.Pi3HatRouter,
                  accel_limit: float=20.0,
                  velocity_limit: float=20.0,
-                 watchdog_timeout: float=math.inf):
+                 watchdog_timeout: float=0.5):
         """
         Constructs a swerve motor instance.
 
@@ -46,7 +46,7 @@ class SwerveMotor:
         result = await self.motor.set_position(query=True)
 
         # Extract the position from the result
-        return result.values[moteus.Register.POSITION]
+        return float(result.values[moteus.Register.POSITION])
 
     @property
     async def velocity(self) -> float:
@@ -86,7 +86,7 @@ class SwerveMotor:
         NOTE: If the wait_time parameter is not set, set_position will not fully run unless you manually implement asyncio.sleep().
         It is better if you implement this yourself IF you have more than 1 motor.
 
-        :param angle_deg (float): An angle in degrees to move to. Will be converted to revolutions. Motor will move to this angle relative to its current position, and with a max speed of what is set in self.velocity_limit in rev/s. It will reach this max speed in self.accel_limit in rev/s².
+        :param angle_deg (float): An angle in degrees to move to. Will be converted to revolutions. Motor will move  to this angle relative to its current position, and with a max speed of what is set in self.velocity_limit in rev/s. It will reach this max speed in self.accel_limit in rev/s².
         :param transport (moteus.Transport): The transport object to use for communication. Should be the same transport used in every motor.
 
         :return bool: True if the angle was set successfully, False otherwise.
@@ -95,16 +95,16 @@ class SwerveMotor:
         try:
             angle_rev = angle_deg / 360.0
 
-            degAngle = await self.position * 360
+            # degAngle = await self.position * 360
 
-            if degAngle == None:
-                raise TypeError(
-                    "Degree angle in setAngle function returned as type None")
+            # if degAngle == None:
+            #     raise TypeError(
+            #         "Degree angle in setAngle function returned as type None")
 
-            adjustedAngle = angle_rev  # temp angle for now, add calculations in later
+            # adjustedAngle = angle_rev  # temp angle for now, add calculations in later
 
-            transport.cycle([self.motor.make_position(
-                position=(self.position + adjustedAngle),
+            await transport.cycle([self.motor.make_position(
+                position=angle_rev,
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
                 watchdog_timeout=self.watchdog_timeout
@@ -129,7 +129,7 @@ class SwerveMotor:
         :return bool: True if the position was set successfully, False otherwise.
         """
         try:
-            transport.cycle([self.motor.make_position(
+            await transport.cycle([self.motor.make_position(
                 position=(position_val + self.position),
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
@@ -157,7 +157,7 @@ class SwerveMotor:
         :return bool: True if the position was set successfully, False otherwise.
         """
         try:
-            transport.cycle([self.motor.make_position(
+            await transport.cycle([self.motor.make_position(
                 position=position_val,
                 accel_limit=self.accel_limit,
                 velocity_limit=self.velocity_limit,
@@ -184,8 +184,11 @@ class SwerveMotor:
 
         :return bool: True if the velocity was set successfully, False otherwise.
         """
+
+        print("Velocity val:", velocity_val)
+
         try:
-            transport.cycle([self.motor.make_position(
+            await transport.cycle([self.motor.make_position(
                 position=math.nan,
                 velocity=velocity_val,
                 accel_limit=self.accel_limit,

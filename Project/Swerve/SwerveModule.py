@@ -6,7 +6,7 @@ from wpimath.kinematics import SwerveModuleState
 from wpimath.kinematics import SwerveModulePosition
 from wpimath.geometry import Rotation2d
 import math
-from Swerve.SwerveMotor import SwerveMotor
+from Project.Swerve.SwerveMotor import SwerveMotor
 from Utils.Constants import DRIVE_MOTOR_GEAR_RATIO, WHEEL_DIAMETER
 
 
@@ -51,34 +51,26 @@ class SwerveModule:
         await self.drive.stop()
         await self.steer.stop()
 
-    
-    """
     # Sets the speed and angle of the swerve module (in motor revolutions)
-    async def set(self, speed: float, angle_deg: float, transport: moteus.Transport) -> list:
-        
+    async def set(self, speed: float, angle_deg: float, transport: moteus.Transport) -> None:
+        """
         Sets the speed and angle of the swerve module.
 
         :param speed (float): The speed of the swerve module in revolutions per second.
         :param angle_deg (float): The angle of the swerve module in degrees.
         
         :return list: A list containing the results of setting the speed and angle.
-        
+        """
+
         # Set angle natively takes degrees 
         await self.steer.setAngle(angle_deg, transport)
         await self.drive.setVelocity(speed, transport)
 
-        # Map the steer angle list and drive velocity list to a dictionary
-        return {
-            "steer_angle": self.steer.position,
-            "drive_velocity": self.drive.velocity
-        }
-
     # Stops the swerve module
     async def stop(self):
-        
+        """
         Stops the swerve module by stopping both the drive and steer motors.
-        
+        """
 
         await self.drive.stop()
         await self.steer.stop()
-    """
