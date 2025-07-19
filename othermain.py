@@ -4,7 +4,6 @@ import moteus_pi3hat
 import math
 from Utils.Controller import Controller
 from Swerve.SwerveModule import SwerveModule
-import wpilib
 from wpimath.geometry import Rotation2d
 from wpimath.kinematics import SwerveModuleState
 # from Swerve.SwerveMotor import SwerveMotor
@@ -16,17 +15,12 @@ async def main():
             1:[11,12]
         }
     )
-        
-    servos = {
-        servo_id : moteus.Controller(id=servo_id, transport=transport)
-        for servo_id in [11,12]
-    }
-
-    await transport.cycle([x.make_stop() for x in servos.values()])
 
 
     controller = Controller()
     swerve_module = SwerveModule(drive_id=11, steer_id=12, transport=transport)
+
+    await swerve_module.stop()
     # Example usage of named bindings:
     #   LEFT_X, LEFT_Y: left joystick axes
     #   RIGHT_X, RIGHT_Y: right joystick axes
@@ -71,11 +65,11 @@ async def main():
 
         except KeyboardInterrupt:
             print("Program interrupted by user. Stopping all modules.")
-            await transport.cycle([x.make_stop() for x in servos.values()])
+            await swerve_module.stop()
             exit(0)
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
-            await transport.cycle([x.make_stop() for x in servos.values()])
+            await swerve_module.stop()
     
 
 

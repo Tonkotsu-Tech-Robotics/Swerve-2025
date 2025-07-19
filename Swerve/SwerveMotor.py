@@ -31,11 +31,8 @@ class SwerveMotor:
         self.watchdog_timeout = watchdog_timeout
         self.motor = moteus.Controller(id=motorID, transport=transport)
 
-        # ALWAYS call stop to the motor when starting and ending a program.
-        asyncio.run(self.motor.set_stop())
-
     @property
-    async def position(self) -> float:
+    async def position(self):
         """
         Gives the current absolute motor position (relative to position 0).
 
@@ -43,10 +40,12 @@ class SwerveMotor:
         """
 
         # Query the motor for its current state
-        result = await self.motor.set_position(query=True)
+        result = await self.motor.set_position(position=math.nan, query=True)
+
+        print(f"Motor {self.motor.id} position register is of type {type(result.values[moteus.Register.POSITION])}")
 
         # Extract the position from the result
-        return float(result.values[moteus.Register.POSITION])
+        return result.values[moteus.Register.POSITION]
 
     @property
     async def velocity(self) -> float:
@@ -57,7 +56,7 @@ class SwerveMotor:
         """
 
         # Query the motor for its current state
-        result = await self.motor.set_position(query=True)
+        result = await self.motor.set_position(position=math.nan, query=True)
 
         # Extract the position from the result
         return result.values[moteus.Register.VELOCITY]
