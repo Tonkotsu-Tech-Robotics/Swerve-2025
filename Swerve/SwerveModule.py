@@ -6,7 +6,7 @@ from wpimath.kinematics import SwerveModuleState
 from wpimath.kinematics import SwerveModulePosition
 from wpimath.geometry import Rotation2d
 import math
-from Project.Swerve.SwerveMotor import SwerveMotor
+from Swerve.SwerveMotor import SwerveMotor
 from Utils.Constants import DRIVE_MOTOR_GEAR_RATIO, WHEEL_DIAMETER
 
 

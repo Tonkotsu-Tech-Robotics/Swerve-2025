@@ -185,8 +185,6 @@ class SwerveMotor:
         :return bool: True if the velocity was set successfully, False otherwise.
         """
 
-        print("Velocity val:", velocity_val)
-
         try:
             await transport.cycle([self.motor.make_position(
                 position=math.nan,

@@ -4,8 +4,6 @@ from Swerve.SwerveDrive import SwerveDrive
 async def main(swerve_drive: SwerveDrive = None):
     while True:
         await swerve_drive.setMotorSpeeds()
-        
-        await asyncio.sleep(0.005)  # Sleep for 5 milliseconds
 
 if __name__ == '__main__':
     # Initialize SwerveDrive instance
