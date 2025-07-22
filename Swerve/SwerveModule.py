@@ -30,12 +30,12 @@ class SwerveModule:
         return self.swerve_module_position
     
     async def getState(self) -> SwerveModuleState:
-        self.state.angle = await Rotation2d.fromRotations(self.steer.position)  # revolutions
-        self.state.meters_per_second = await (self.drive.velocity() / DRIVE_MOTOR_GEAR_RATIO * WHEEL_DIAMETER * math.pi)   # revolutions per second
+        self.state.angle = await Rotation2d.fromRotations(await self.steer.position)  # revolutions
+        self.state.meters_per_second = await (await self.drive.velocity() / DRIVE_MOTOR_GEAR_RATIO * WHEEL_DIAMETER * math.pi)   # revolutions per second
         return self.state
     
     async def setState(self, desired_state: SwerveModuleState, transport: moteus.Transport):
-        current_angle: Rotation2d = await Rotation2d.fromRotations(self.steer.position)
+        current_angle: Rotation2d = await Rotation2d.fromRotations(await self.steer.position)
 
         desired_state = desired_state.optimized(current_angle)
 
