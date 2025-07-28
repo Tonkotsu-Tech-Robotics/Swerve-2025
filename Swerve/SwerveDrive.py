@@ -155,8 +155,38 @@ class SwerveDrive:
         new_states = wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds(new_states, Constants.MAX_SPEED)
         self.set_module_states(new_states)
 
-    async def get_heading_Rotation2d(self) -> wpimath.geometry.Rotation2d:
-        return wpimath.geometry.Rotation2d.fromDegrees(self.get_heading())
+    async def reset_heading(self):
+        #reset the heading
+        return
+
+    async def get_swerve_module_states(self) -> wpimath.kinematics.SwerveModuleStates:
+        current_module_state = wpimath.kinematics.SwerveModuleStates[4]
+        for i in range(4):
+            current_module_state[i] = self.states[i]
+        
+        return current_module_state
+    
+    async def set_swerve_module_states(self):
+        set_states = states
+        for i in range (4):
+            self.modules[i].set_states(self.states[i])
+
+    
+    async def get_swerve_module_positions(self) -> wpimath.kinematics.SwerveModulePositions:
+        current_module_position = wpimath.kinematics.SwerveModulePositions[4]
+        for i in range(4):
+            current_module_position[i] = await self.modules.get_position()
+        
+        return current_module_position
+    
+    async def stop_modules(self):
+        for i in range(4):
+            await self.modules[i].stop()
+    
+    async def reset_drive_positions(self):
+        for i in range(4):
+            await self.modules.reset_drive_positions()
+
     
     async def get_heading(self) -> float:
         return 0.0 #heading logic put here big boy

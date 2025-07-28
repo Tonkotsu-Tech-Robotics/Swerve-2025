@@ -51,6 +51,9 @@ class SwerveModule:
         await self.drive.stop()
         await self.steer.stop()
 
+    async def reset_drive_positions(self):
+        await self.drive.setPosition(0.0)
+
     # Sets the speed and angle of the swerve module (in motor revolutions)
     async def set(self, speed: float, angle_deg: float, transport: moteus.Transport) -> None:
         """
