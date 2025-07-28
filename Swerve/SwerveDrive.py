@@ -190,4 +190,7 @@ class SwerveDrive:
     
     async def get_heading(self) -> float:
         return 0.0 #heading logic put here big boy
+    
+    async def get_heading_rotation2d(self) -> float:
+        return 0.0 #fix later
 
