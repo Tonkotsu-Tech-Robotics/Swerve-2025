@@ -145,7 +145,7 @@ class SwerveDrive:
             (forward_speed, left_speed, turn_speed, getheadingsomehow())
             #fix get heading
 
-        else:
+        else: 
             speeds = wpimath.kinematics.ChassisSpeeds(forward_speed, left_speed, turn_speed)
 
         speeds = wpimath.kinematics.ChassisSpeeds.discretize(speeds, 0.02)
@@ -189,8 +189,14 @@ class SwerveDrive:
 
     
     async def get_heading(self) -> float:
-        return 0.0 #heading logic put here big boy
+        result = await self.transport.cycle([], request_attitude=True)
+        imu_result = [
+            x for x in result
+            if x.id == -1 and isinstance(x, moteus_pi3hat.CanAttitudeWrapper)][0]
+
+        return imu_result.euler_rad.yaw * 180.0 / math.pi  # Convert radians to degrees
+
     
     async def get_heading_rotation2d(self) -> float:
-        return 0.0 #fix later
+        return Rotation2d.fromDegrees(await self.get_heading())
 
