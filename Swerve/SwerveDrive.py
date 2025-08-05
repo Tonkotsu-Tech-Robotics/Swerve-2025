@@ -28,19 +28,19 @@ class SwerveDrive:
         #need to add controller
         self.controller = Controller()
         self.modules = []
-        pose_estimator: estimator.SwerveDrive4PoseEstimatorBase | None = None
-        pose_estimator_3d: estimator.SwerveDrive4PoseEstimator3dBase | None = None
+        # pose_estimator: estimator.SwerveDrive4PoseEstimatorBase | None = None
+        # pose_estimator_3d: estimator.SwerveDrive4PoseEstimator3dBase | None = None
 
         states = [wpimath.kinematics.SwerveModuleState() for _ in range(4)]
         set_states = [wpimath.kinematics.SwerveModuleState() for _ in range(4)]
 
         self.modules = self.initialize_modules()
-        self.pose_estimator = self.initialize_pose_estimator()
-        self.pose_estimator_3d = self.initialize_pose_estimator_3d()
-        self.field = wpilib.Field2d()
+        # self.pose_estimator = self.initialize_pose_estimator()
+        # self.pose_estimator_3d = self.initialize_pose_estimator_3d()
+        # self.field = wpilib.Field2d()
 
-        self.robot_pos = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0))
-        self.robot_pos_3d = Pose3d(0.0, 0.0, 0.0, Rotation3d(0.0, 0.0, 0.0))
+        # self.robot_pos = Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0))
+        # self.robot_pos_3d = Pose3d(0.0, 0.0, 0.0, Rotation3d(0.0, 0.0, 0.0))
 
     # this is not my code maybe delete later
     async def stop(self):
@@ -107,26 +107,27 @@ class SwerveDrive:
             )
         ]
     
-    async def initialize_pose_estimator(self):
-        return estimator.SwerveDrive4PoseEstimator(
-            Constants.kinematics,
-            Rotation2d.fromDegrees(self.get_heading()), #<- needs to be updated
-            self.get_module_positions(), #<- allso wrong change later
-            Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)),
-            np.array([[0.02], [0.02], [math.radians(5)]]),
-            np.array([[0.3], [0.3], [math.radians(10)]])
-        )
+    # async def initialize_pose_estimator(self):
+    #     return estimator.SwerveDrive4PoseEstimator(
+    #         Constants.kinematics,
+    #         Rotation2d.fromDegrees(self.get_heading()), #<- needs to be updated
+    #         self.get_module_positions(), #<- allso wrong change later
+    #         Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)),
+    #         np.array([[0.02], [0.02], [math.radians(5)]]),
+    #         np.array([[0.3], [0.3], [math.radians(10)]])
+    #     )
     
-    async def initialize_pose_estimator_3d(self):
-        return estimator.SwerveDrive4PoseEstimator3d(
-            Constants.kinematics,
-            self.get_rotation_3d_function, #<- needs to be updated
-            self.get_module_positions(), #<- wrong change later
-            Pose3d(0.0, 0.0, 0.0, Rotation3d(0.0, 0.0, 0.0))
-    )
+    # async def initialize_pose_estimator_3d(self):
+    #     return estimator.SwerveDrive4PoseEstimator3d(
+    #         Constants.kinematics,
+    #         self.get_rotation_3d_function, #<- needs to be updated
+    #         self.get_module_positions(), #<- wrong change later
+    #         Pose3d(0.0, 0.0, 0.0, Rotation3d(0.0, 0.0, 0.0))
+    # )
 
     async def swerve_drive_periodic(self):
-        await self.update_pos() 
+        # await self.update_pos() 
+        return
 
         #idk why its white 
         # self.pose_estimator.update(self.get_pidgey_rotation(), self.get_module_positions()) #fix more stuff dummy
@@ -135,14 +136,14 @@ class SwerveDrive:
         # self.robot_pos = self.pose_estimator.getEstimatedPosition()
         # self.robot_pos_3d = self.pose_estimator_3d.getEstimatedPosition()
 
-    async def update_pos(self):
-        return #no idea how to do this shit rn
+    # async def update_pos(self):
+        # return #no idea how to do this shit rn
     
     async def set_drive_speeds(self, forward_speed, left_speed, turn_speed, is_field_oriented):
         # Convert to chassis speeds the robot understands
         if is_field_oriented:
             speeds = wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds
-            (forward_speed, left_speed, turn_speed, getheadingsomehow())
+            (forward_speed, left_speed, turn_speed, self.get_heading_rotation2d())
             #fix get heading
 
         else: 
@@ -167,9 +168,9 @@ class SwerveDrive:
         return current_module_state
     
     async def set_swerve_module_states(self):
-        set_states = states
+        set_states = self.states
         for i in range (4):
-            self.modules[i].set_states(self.states[i])
+            self.modules[i].set_states(set_states[i])
 
     
     async def get_swerve_module_positions(self) -> wpimath.kinematics.SwerveModulePositions:
