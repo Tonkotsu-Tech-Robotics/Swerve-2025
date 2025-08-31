@@ -56,7 +56,7 @@ class SwerveDrive:
         Sets the speed and angle of each swerve module.
         """
         [
-            await module.set(speed, angle, self.transport)
+            await module.set(spFeed, angle, self.transport)
             for module, speed, angle in zip(self.modules, speeds, angles)
         ]
 
@@ -160,8 +160,8 @@ class SwerveDrive:
         #reset the heading
         return
 
-    async def get_swerve_module_states(self) -> wpimath.kinematics.SwerveModuleStates:
-        current_module_state = wpimath.kinematics.SwerveModuleStates[4]
+    async def get_swerve_module_states(self) -> wpimath.kinematics.SwerveModuleState:
+        current_module_state = wpimath.kinematics.SwerveModuleState()
         for i in range(4):
             current_module_state[i] = self.states[i]
         
@@ -173,8 +173,8 @@ class SwerveDrive:
             self.modules[i].set_states(set_states[i])
 
     
-    async def get_swerve_module_positions(self) -> wpimath.kinematics.SwerveModulePositions:
-        current_module_position = wpimath.kinematics.SwerveModulePositions[4]
+    async def get_swerve_module_positions(self) -> wpimath.kinematics.SwerveModulePosition:
+        current_module_position = wpimath.kinematics.SwerveModulePosition[4]
         for i in range(4):
             current_module_position[i] = await self.modules.get_position()
         
