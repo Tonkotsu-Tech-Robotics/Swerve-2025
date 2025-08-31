@@ -47,10 +47,6 @@ class SwerveModule:
 
         self.state = desired_state
 
-    async def stop(self):
-        await self.drive.stop()
-        await self.steer.stop()
-
     async def reset_drive_positions(self):
         await self.drive.setPosition(0.0)
 

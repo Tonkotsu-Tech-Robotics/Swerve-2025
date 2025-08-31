@@ -37,8 +37,6 @@ async def main():
             # Order goes FL, FR, BR, BL
 
             # Modules that need fixing
-            # IDs: 11 (FL Driv
-            # 18 (BL Steer)
 
             servo_list1 = [11,13,15,17]
             servo_list2 = [12,14,16,18]
