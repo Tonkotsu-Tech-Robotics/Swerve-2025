@@ -37,9 +37,7 @@ async def main():
             # Order goes FL, FR, BR, BL
 
             # Modules that need fixing
-            # IDs: 11 (FL Drive)
-            # 14 (FR Steer)
-            # 15 (BR Drive)
+            # IDs: 11 (FL Driv
             # 18 (BL Steer)
 
             servo_list1 = [11,13,15,17]
@@ -49,9 +47,9 @@ async def main():
                 servo.make_position(
                     position=math.nan,
                     # Use named constant for left joystick Y axis, scaled to -10..10
-                    velocity=controller.get_axis(Controller.LEFT_Y) * 15,
-                    accel_limit=15,
-                    velocity_limit=15,
+                    velocity=controller.get_axis(Controller.LEFT_Y) * 25,
+                    accel_limit=25,
+                    velocity_limit=25,
                     watchdog_timeout=5,
                 )
                 for servo in servos.values() if servo.id in servo_list1
@@ -61,9 +59,9 @@ async def main():
                 servo.make_position(
                     position=math.nan,
                     # Use named constant for left joystick Y axis, scaled to -10..10
-                    velocity=controller.get_axis(Controller.LEFT_X) * 15,
-                    accel_limit=15,
-                    velocity_limit=15,
+                    velocity=controller.get_axis(Controller.LEFT_X) * 25,
+                    accel_limit=25,
+                    velocity_limit=25,
                     watchdog_timeout=5,
                 )
                 for servo in servos.values() if servo.id in servo_list2
@@ -76,8 +74,8 @@ async def main():
                     servo.make_position(
                         position=math.nan,
                         velocity=0,
-                        accel_limit=15,
-                        velocity_limit=15,
+                        accel_limit=25,
+                        velocity_limit=25,
                         watchdog_timeout=5,
                     )
                     for servo in servos.values()
