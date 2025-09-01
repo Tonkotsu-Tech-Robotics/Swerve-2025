@@ -2,13 +2,17 @@ import asyncio
 from Swerve.SwerveDrive import SwerveDrive
 
 async def main(swerve_drive: SwerveDrive = None):
+    await swerve_drive.initialize_modules()
+    speeds = [0.0, 0.0, 0.0]
     while True:
-        await swerve_drive.setMotorSpeeds()
+        speeds = await swerve_drive.getControllerSpeeds()
+        await swerve_drive.set_drive_speeds(speeds[0], speeds[1], speeds[2], False)
 
+        
+    
 if __name__ == '__main__':
     # Initialize SwerveDrive instance
     swerve_drive = SwerveDrive()
-
     try:
         asyncio.run(main(swerve_drive))
     except KeyboardInterrupt:

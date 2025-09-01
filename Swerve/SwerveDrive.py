@@ -31,10 +31,9 @@ class SwerveDrive:
         # pose_estimator: estimator.SwerveDrive4PoseEstimatorBase | None = None
         # pose_estimator_3d: estimator.SwerveDrive4PoseEstimator3dBase | None = None
 
-        states = [wpimath.kinematics.SwerveModuleState() for _ in range(4)]
-        set_states = [wpimath.kinematics.SwerveModuleState() for _ in range(4)]
+        # states = [wpimath.kinematics.SwerveModuleState() for _ in range(4)]
+        # set_states = [wpimath.kinematics.SwerveModuleState() for _ in range(4)]
 
-        self.modules = self.initialize_modules()
         # self.pose_estimator = self.initialize_pose_estimator()
         # self.pose_estimator_3d = self.initialize_pose_estimator_3d()
         # self.field = wpilib.Field2d()
@@ -56,7 +55,7 @@ class SwerveDrive:
         Sets the speed and angle of each swerve module.
         """
         [
-            await module.set(spFeed, angle, self.transport)
+            await module.set(speed, angle, self.transport)
             for module, speed, angle in zip(self.modules, speeds, angles)
         ]
 
@@ -72,21 +71,15 @@ class SwerveDrive:
         """
         return await self.modules[index].getPosition()
     
-    async def setMotorSpeeds(self):
+    async def getControllerSpeeds(self):
         """
         Uses the controller to set the speeds of the swerve modules based on joystick input.
         """
+        forward_speed = self.controller.get_axis(Controller.LEFT_X)
+        left_speed = self.controller.get_axis(Controller.LEFT_Y)
+        turn_speed = self.controller.get_axis(Controller.RIGHT_X)
 
-        left_x = self.controller.get_axis(Controller.LEFT_X)
-        left_y = self.controller.get_axis(Controller.LEFT_Y)
-        right_x = self.controller.get_axis(Controller.RIGHT_X)
-        right_y = self.controller.get_axis(Controller.RIGHT_Y)
-
-        # Calculate speeds and angles for each module
-        speeds = [left_y, left_y, right_y, right_y]
-        angles = [left_x, left_x, right_x, right_x]
-
-        await self.setAll(speeds, angles)
+        return [forward_speed, left_speed, turn_speed]
 
 
     # NEW CODE
@@ -139,8 +132,9 @@ class SwerveDrive:
     # async def update_pos(self):
         # return #no idea how to do this shit rn
     
-    async def set_drive_speeds(self, forward_speed, left_speed, turn_speed, is_field_oriented):
-        # Convert to chassis speeds the robot understands
+    async def set_drive_speeds(self, forward_speed, left_speed, turn_speed, is_field_oriented = False):
+        # Convert to chassis speeds the robot understand?s
+        speeds = None
         if is_field_oriented:
             speeds = wpimath.kinematics.ChassisSpeeds.fromFieldRelativeSpeeds
             (forward_speed, left_speed, turn_speed, self.get_heading_rotation2d())
@@ -154,7 +148,7 @@ class SwerveDrive:
         new_states = Constants.kinematics.toSwerveModuleStates(speeds)
 
         new_states = wpimath.kinematics.SwerveDrive4Kinematics.desaturateWheelSpeeds(new_states, Constants.MAX_SPEED)
-        self.set_module_states(new_states)
+        await self.set_swerve_module_states(new_states)
 
     async def reset_heading(self):
         #reset the heading
@@ -167,8 +161,8 @@ class SwerveDrive:
         
         return current_module_state
     
-    async def set_swerve_module_states(self):
-        set_states = self.states
+    async def set_swerve_module_states(self, states):
+        set_states = states
         for i in range (4):
             self.modules[i].set_states(set_states[i])
 
